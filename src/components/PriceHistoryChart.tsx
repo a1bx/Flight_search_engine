@@ -73,7 +73,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 export function PriceHistoryChart({ data, isLoading }: PriceHistoryChartProps) {
   if (isLoading) {
     return (
-      <div className="glass-card rounded-2xl p-6">
+      <div className="bg-card border border-border rounded-xl p-6 shadow-lg shadow-cyan-500/5">
         <div className="flex items-center gap-3 mb-6">
           <div className="h-10 w-10 rounded-xl shimmer" />
           <div className="space-y-2">
@@ -95,12 +95,12 @@ export function PriceHistoryChart({ data, isLoading }: PriceHistoryChartProps) {
   const priceDiff = currentPrice - minPrice;
   const percentDiff = (priceDiff / minPrice * 100).toFixed(1);
   return (
-    <div className="glass-card rounded-2xl p-6">
+    <div className="bg-card border border-border rounded-xl p-6 shadow-lg shadow-cyan-500/5 overflow-hidden">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-gradient-accent rounded-xl shadow-lg shadow-cyan-500/25">
+          {/* <div className="p-2.5 bg-accent rounded-xl shadow-lg shadow-cyan-500/25">
             <TrendingDown className="w-5 h-5 text-white" />
-          </div>
+          </div> */}
           <div>
             <h3 className="text-lg font-semibold text-foreground">
               7-Day Price Trend
@@ -138,7 +138,7 @@ export function PriceHistoryChart({ data, isLoading }: PriceHistoryChartProps) {
         </div>
       </div>
 
-      <div className="h-48">
+      <div className="h-48 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={data}
