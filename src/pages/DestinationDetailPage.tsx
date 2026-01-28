@@ -22,8 +22,10 @@ import {
 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { getDestinationById } from '../utils/destinations';
+import { searchFlights } from '../utils/amadeus';
 import { useAuth } from '../hooks/useAuth';
 import { HotelCard } from '../components/HotelCard';
+import { FlightCard } from '../components/FlightCard';
 import { CarCard } from '../components/CarCard';
 import { TransferCard } from '../components/TransferCard';
 import { searchHotels, getHotelsByDestination } from '../utils/hotels';
@@ -35,8 +37,14 @@ export function DestinationDetailPage() {
     id: string;
   }>();
   const { user, isAuthenticated, toggleFavoriteDestination } = useAuth();
-  const destination = id ? getDestinationById(id) : undefined;
+  const staticDestination = id ? getDestinationById(id) : undefined;
+  const [destination, setDestination] = useState(staticDestination);
+  const [isLoadingDestination, setIsLoadingDestination] = useState(false);
   const isFavorite = user?.favoriteDestinations.includes(id || '');
+
+  // Flights preview for this destination
+  const [flightsPreview, setFlightsPreview] = useState<any[]>([]);
+  const [isLoadingFlightsPreview, setIsLoadingFlightsPreview] = useState(false);
   
   const [activeTab, setActiveTab] = useState<'attractions' | 'hotels' | 'cars' | 'transfers'>('attractions');
   const [hotels, setHotels] = useState<HotelType[]>([]);
@@ -67,6 +75,127 @@ export function DestinationDetailPage() {
       });
     }
   }, [activeTab, destination, hotels.length]);
+
+  // Load a small flights preview for this destination
+  useEffect(() => {
+    const loadFlights = async () => {
+      if (!destination || !id) return;
+      setIsLoadingFlightsPreview(true);
+
+      try {
+        // Default origin - you may replace with user's selected origin
+        const originAirport = {
+          code: 'JFK',
+          name: 'John F. Kennedy International Airport',
+          city: 'New York',
+          country: 'USA'
+        };
+
+        const destAirport = {
+          code: id.toUpperCase(),
+          name: destination.name,
+          city: destination.name,
+          country: destination.country
+        };
+
+        const params = {
+          origin: originAirport,
+          destination: destAirport,
+          departureDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          returnDate: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          passengers: 1,
+          cabinClass: 'economy',
+          tripType: 'round-trip'
+        };
+
+        const results = await searchFlights(params as any);
+        setFlightsPreview(results.slice(0, 6));
+      } catch (e) {
+        console.warn('Failed loading flights preview', e);
+      } finally {
+        setIsLoadingFlightsPreview(false);
+      }
+    };
+
+    loadFlights();
+  }, [destination, id]);
+
+  // Load destination details from API when id doesn't match static data
+  useEffect(() => {
+    const loadDestinationFromApi = async () => {
+      if (!id) return;
+      if (staticDestination) return; // already have static
+      setIsLoadingDestination(true);
+      try {
+        // Try inspiration endpoint first
+        const resp = await fetch(`http://localhost:3001/api/destinations/inspiration?origin=JFK`);
+        const data = await resp.json().catch(() => []);
+        const found = (data || []).find((d: any) => (d.destination || '').toUpperCase() === id.toUpperCase());
+        if (found) {
+          const mapped = {
+            id: found.destination,
+            name: found.city || found.destination,
+            country: found.country || 'Unknown',
+            region: found.region || 'World',
+            image: `https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80&sig=${found.destination}`,
+            description: `Discover ${found.city || found.destination} — explore local sights and culture.`,
+            averageFlightPrice: parseFloat(found.price?.total || '0'),
+            currency: 'USD',
+            bestTimeToVisit: 'Year-round',
+            visaRequired: false,
+            language: 'Local',
+            timezone: 'Local',
+            attractions: [],
+            tips: ['Book in advance', 'Explore local cuisine'],
+            averageCosts: {
+              accommodation: 120,
+              meals: 45,
+              transportation: 15,
+              activities: 30
+            }
+          } as any;
+          setDestination(mapped);
+          setIsLoadingDestination(false);
+          return;
+        }
+
+        // Fallback: query locations endpoint
+        const locs = await fetch(`http://localhost:3001/api/airports/suggestions?keyword=${id}`).then(r => r.json()).catch(() => []);
+        const loc = (locs || [])[0];
+        if (loc) {
+          const mapped = {
+            id: id.toUpperCase(),
+            name: loc.name || id.toUpperCase(),
+            country: loc.address?.countryName || 'Unknown',
+            region: loc.address?.regionCode || 'World',
+            image: `https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80&sig=${id}`,
+            description: `Explore ${loc.name || id}.`,
+            averageFlightPrice: 0,
+            currency: 'USD',
+            bestTimeToVisit: 'Year-round',
+            visaRequired: false,
+            language: 'Local',
+            timezone: 'Local',
+            attractions: [],
+            tips: [],
+            averageCosts: {
+              accommodation: 100,
+              meals: 35,
+              transportation: 10,
+              activities: 20
+            }
+          } as any;
+          setDestination(mapped);
+        }
+      } catch (e) {
+        console.warn('Failed to load destination from API', e);
+      } finally {
+        setIsLoadingDestination(false);
+      }
+    };
+
+    loadDestinationFromApi();
+  }, [id, staticDestination]);
   
   // Load cars when tab is active
   useEffect(() => {
@@ -247,6 +376,27 @@ export function DestinationDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
+            {/* Flights Preview */}
+            <div className="bg-card border border-border rounded-xl p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Popular Flights</h3>
+                <Link to={`/search?destination=${destination?.name || ''}`} className="text-sm text-primary hover:underline">View all</Link>
+              </div>
+              {isLoadingFlightsPreview ? (
+                <div className="text-center py-6">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : flightsPreview.length > 0 ? (
+                <div className="grid grid-cols-1 gap-4">
+                  {flightsPreview.slice(0, 3).map((f) => (
+                    <FlightCard key={f.id} flight={f} onSelect={() => alert('Select flight')} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-6 text-muted-foreground">No flights available for preview.</div>
+              )}
+            </div>
+
             {/* Tabs */}
             <div className="flex gap-2 border-b border-border">
               <button
