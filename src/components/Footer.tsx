@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Plane, Github, Twitter, Linkedin } from 'lucide-react';
 export function Footer() {
@@ -21,25 +20,6 @@ export function Footer() {
       label: 'Nearby Airports',
       href: '/nearby'
     }],
-
-    company: [
-    {
-      label: 'About Us',
-      href: '#'
-    },
-    {
-      label: 'Careers',
-      href: '#'
-    },
-    {
-      label: 'Press',
-      href: '#'
-    },
-    {
-      label: 'Contact',
-      href: '#'
-    }],
-
     legal: [
     {
       label: 'Privacy Policy',
@@ -111,24 +91,6 @@ export function Footer() {
               )}
             </ul>
           </div>
-
-          {/* Company Links */}
-          <div>
-            <h3 className="font-semibold text-foreground mb-4">Company</h3>
-            <ul className="space-y-3">
-              {footerLinks.company.map((link) =>
-              <li key={link.label}>
-                  <a
-                  href={link.href}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-
-                    {link.label}
-                  </a>
-                </li>
-              )}
-            </ul>
-          </div>
-
           {/* Legal Links */}
           <div>
             <h3 className="font-semibold text-foreground mb-4">Legal</h3>
