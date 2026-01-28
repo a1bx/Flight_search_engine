@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Plane,
@@ -59,7 +58,7 @@ export function LandingPage() {
 
   const testimonials = [
   {
-    name: 'Sarah Johnson',
+    name: 'Count Dracula',
     role: 'Frequent Traveler',
     content:
     'SkySearch saved me over $500 on my last international trip. The comparison tools are incredibly helpful!',
@@ -67,7 +66,7 @@ export function LandingPage() {
     'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop'
   },
   {
-    name: 'Michael Chen',
+    name: 'Peter Griffin',
     role: 'Business Traveler',
     content:
     'The destination guides helped me discover amazing places I never knew existed. Highly recommend!',
@@ -75,7 +74,7 @@ export function LandingPage() {
     'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop'
   },
   {
-    name: 'Emily Rodriguez',
+    name: 'Lois Lane',
     role: 'Adventure Seeker',
     content:
     'Budget planning feature is a game-changer. I can now plan trips without worrying about overspending.',
@@ -149,37 +148,6 @@ export function LandingPage() {
                 <p className="text-sm text-muted-foreground">
                   {feature.description}
                 </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="py-20">
-        <div className="page-container">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">
-              How It Works
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Book your next flight in three simple steps.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {steps.map((step, index) =>
-            <div key={step.number} className="relative text-center">
-                <div className="w-16 h-16 mx-auto mb-4 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-2xl font-bold">
-                  {step.number}
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  {step.title}
-                </h3>
-                <p className="text-muted-foreground">{step.description}</p>
-                {index < steps.length - 1 &&
-              <ArrowRight className="hidden md:block absolute top-8 -right-4 w-8 h-8 text-muted-foreground/30" />
-              }
               </div>
             )}
           </div>
@@ -261,49 +229,6 @@ export function LandingPage() {
                 </div>
               </div>
             )}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-primary">
-        <div className="page-container text-center">
-          <h2 className="text-3xl font-bold text-primary-foreground mb-4">
-            Ready to Start Your Journey?
-          </h2>
-          <p className="text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-            Sign up today and get access to exclusive deals, personalized
-            recommendations, and more.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/signup">
-              <Button
-                variant="secondary"
-                size="lg"
-                className="bg-white text-primary hover:bg-white/90">
-
-                Create Free Account
-              </Button>
-            </Link>
-            <Link to="/search">
-              <Button
-                variant="outline"
-                size="lg"
-                className="border-white/30 text-white hover:bg-white/10">
-
-                Search Flights
-              </Button>
-            </Link>
-          </div>
-          <div className="flex items-center justify-center gap-6 mt-8 text-primary-foreground/80 text-sm">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4" />
-              <span>No credit card required</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4" />
-              <span>Free forever</span>
-            </div>
           </div>
         </div>
       </section>
