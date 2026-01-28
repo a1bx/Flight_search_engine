@@ -5,8 +5,9 @@ import { AirportCard, AirportCardSkeleton } from '../components/AirportCard';
 import {
   getNearbyAirports,
   getCurrentLocation,
-  formatCoordinates } from
-'../utils/geolocation';
+  formatCoordinates
+} from
+  '../utils/geolocation';
 import { NearbyAirport } from '../types/flight';
 export function NearbyAirportsPage() {
   const [airports, setAirports] = useState<NearbyAirport[]>([]);
@@ -28,7 +29,7 @@ export function NearbyAirportsPage() {
         lon: longitude
       });
       setHasPermission(true);
-      const nearby = getNearbyAirports(latitude, longitude, 150);
+      const nearby = await getNearbyAirports(latitude, longitude, 150);
       setAirports(nearby);
     } catch (err) {
       setHasPermission(false);
@@ -77,7 +78,7 @@ export function NearbyAirportsPage() {
         <div className="page-container">
           {/* Location Request */}
           {hasPermission === null && !isLoading &&
-          <div className="max-w-md mx-auto text-center py-16">
+            <div className="max-w-md mx-auto text-center py-16">
               <div className="w-20 h-20 mx-auto mb-6 bg-primary/10 rounded-2xl flex items-center justify-center">
                 <Navigation className="w-10 h-10 text-primary" />
               </div>
@@ -89,10 +90,10 @@ export function NearbyAirportsPage() {
                 data is only used locally and never stored.
               </p>
               <Button
-              variant="primary"
-              size="lg"
-              onClick={fetchNearbyAirports}
-              leftIcon={<MapPin className="w-5 h-5" />}>
+                variant="primary"
+                size="lg"
+                onClick={fetchNearbyAirports}
+                leftIcon={<MapPin className="w-5 h-5" />}>
 
                 Find Nearby Airports
               </Button>
@@ -101,7 +102,7 @@ export function NearbyAirportsPage() {
 
           {/* Loading */}
           {isLoading &&
-          <div className="max-w-md mx-auto text-center py-16">
+            <div className="max-w-md mx-auto text-center py-16">
               <Loader2 className="w-12 h-12 mx-auto mb-4 text-primary animate-spin" />
               <p className="text-muted-foreground">
                 Finding airports near you...
@@ -111,7 +112,7 @@ export function NearbyAirportsPage() {
 
           {/* Error */}
           {error &&
-          <div className="max-w-md mx-auto text-center py-16">
+            <div className="max-w-md mx-auto text-center py-16">
               <div className="w-20 h-20 mx-auto mb-6 bg-destructive/10 rounded-2xl flex items-center justify-center">
                 <AlertCircle className="w-10 h-10 text-destructive" />
               </div>
@@ -127,10 +128,10 @@ export function NearbyAirportsPage() {
 
           {/* Results */}
           {!isLoading && !error && airports.length > 0 &&
-          <>
+            <>
               {/* User Location */}
               {userLocation &&
-            <div className="mb-6 p-4 bg-muted/50 rounded-xl flex items-center justify-between">
+                <div className="mb-6 p-4 bg-muted/50 rounded-xl flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-primary/10 rounded-lg">
                       <MapPin className="w-5 h-5 text-primary" />
@@ -145,14 +146,14 @@ export function NearbyAirportsPage() {
                     </div>
                   </div>
                   <Button
-                variant="outline"
-                size="sm"
-                onClick={fetchNearbyAirports}>
+                    variant="outline"
+                    size="sm"
+                    onClick={fetchNearbyAirports}>
 
                     Refresh
                   </Button>
                 </div>
-            }
+              }
 
               {/* Airport List */}
               <div className="space-y-4">
@@ -161,15 +162,15 @@ export function NearbyAirportsPage() {
                   {airports.length !== 1 ? 's' : ''} within 150 miles
                 </p>
                 {airports.map((airport) =>
-              <AirportCard key={airport.code} airport={airport} />
-              )}
+                  <AirportCard key={airport.code} airport={airport} />
+                )}
               </div>
             </>
           }
 
           {/* No Results */}
           {!isLoading && !error && hasPermission && airports.length === 0 &&
-          <div className="max-w-md mx-auto text-center py-16">
+            <div className="max-w-md mx-auto text-center py-16">
               <div className="w-20 h-20 mx-auto mb-6 bg-muted rounded-2xl flex items-center justify-center">
                 <MapPin className="w-10 h-10 text-muted-foreground" />
               </div>
