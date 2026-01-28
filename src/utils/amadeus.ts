@@ -310,14 +310,15 @@ export async function searchFlights(params: SearchParams): Promise<Flight[]> {
   // Try to use Amadeus API first
   try {
     const { searchFlightsRealtime } = await import('./amadeusApi');
+    console.log('📡 Attempting to fetch real flights from Amadeus API...');
     const realFlights = await searchFlightsRealtime(params);
 
     if (realFlights && realFlights.length > 0) {
-      console.log(`✈️ Found ${realFlights.length} real flights from Amadeus API`);
+      console.log(`✈️ Success! Found ${realFlights.length} real flights from Amadeus API`);
       return realFlights;
     }
   } catch (error) {
-    console.warn('Amadeus API unavailable, falling back to mock data:', error);
+    console.warn('⚠️ Amadeus API unavailable, falling back to mock data:', error);
   }
 
   // Fallback to mock data
