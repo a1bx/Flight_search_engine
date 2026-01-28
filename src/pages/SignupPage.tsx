@@ -157,25 +157,6 @@ export function SignupPage() {
               )}
             </div>
 
-            <label className="flex items-start gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={acceptTerms}
-                onChange={(e) => setAcceptTerms(e.target.checked)}
-                className="w-4 h-4 mt-0.5 rounded border-input text-primary focus:ring-primary" />
-
-              <span className="text-sm text-muted-foreground">
-                I agree to the{' '}
-                <a href="#" className="text-primary hover:underline">
-                  Terms of Service
-                </a>{' '}
-                and{' '}
-                <a href="#" className="text-primary hover:underline">
-                  Privacy Policy
-                </a>
-              </span>
-            </label>
-
             <Button
               type="submit"
               variant="primary"
