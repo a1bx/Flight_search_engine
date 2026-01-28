@@ -1,63 +1,9 @@
 import { Airport, Flight, SearchParams } from '../types/flight';
 
-const AMADEUS_API_KEY = import.meta.env.VITE_AMADEUS_API_KEY;
-const AMADEUS_API_SECRET = import.meta.env.VITE_AMADEUS_API_SECRET;
-const AMADEUS_ENV = import.meta.env.VITE_AMADEUS_ENVIRONMENT || 'test';
-
-const BASE_URL = AMADEUS_ENV === 'production'
-    ? 'https://api.amadeus.com'
-    : 'https://test.api.amadeus.com';
-
-// Token cache
-let accessToken: string | null = null;
-let tokenExpiry: number = 0;
+const PROXY_URL = 'http://localhost:3001/api';
 
 /**
- * Get OAuth access token for Amadeus API
- */
-async function getAccessToken(): Promise<string> {
-    // Return cached token if still valid
-    if (accessToken && Date.now() < tokenExpiry) {
-        return accessToken;
-    }
-
-    if (!AMADEUS_API_KEY || !AMADEUS_API_SECRET ||
-        AMADEUS_API_KEY === 'your_amadeus_api_key_here') {
-        throw new Error('Amadeus API credentials not configured');
-    }
-
-    try {
-        const response = await fetch(`${BASE_URL}/v1/security/oauth2/token`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams({
-                grant_type: 'client_credentials',
-                client_id: AMADEUS_API_KEY,
-                client_secret: AMADEUS_API_SECRET,
-            }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Amadeus auth failed: ${response.status} ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        accessToken = data.access_token;
-        // Set expiry to 5 minutes before actual expiry for safety
-        tokenExpiry = Date.now() + (data.expires_in - 300) * 1000;
-
-        console.log('🔑 Amadeus access token obtained');
-        return accessToken;
-    } catch (error) {
-        console.error('Error getting Amadeus access token:', error);
-        throw error;
-    }
-}
-
-/**
- * Search for flights using Amadeus Flight Offers Search API
+ * Search for flights using the proxy server
  */
 export async function searchFlightsRealtime(
     params: SearchParams
@@ -67,52 +13,37 @@ export async function searchFlightsRealtime(
     }
 
     try {
-        const token = await getAccessToken();
-
-        const url = new URL(`${BASE_URL}/v2/shopping/flight-offers`);
-        url.searchParams.append('originLocationCode', params.origin.code);
-        url.searchParams.append('destinationLocationCode', params.destination.code);
+        const url = new URL(`${PROXY_URL}/flights/search`);
+        url.searchParams.append('origin', params.origin.code);
+        url.searchParams.append('destination', params.destination.code);
         url.searchParams.append('departureDate', params.departureDate);
         url.searchParams.append('adults', params.passengers.toString());
-        url.searchParams.append('currencyCode', 'USD');
-        url.searchParams.append('max', '50'); // Limit results
 
         if (params.tripType === 'round-trip' && params.returnDate) {
             url.searchParams.append('returnDate', params.returnDate);
         }
 
-        if (params.cabinClass && params.cabinClass !== 'economy') {
-            const cabinMap: Record<string, string> = {
-                'premium-economy': 'PREMIUM_ECONOMY',
-                'business': 'BUSINESS',
-                'first': 'FIRST',
-            };
-            url.searchParams.append('travelClass', cabinMap[params.cabinClass] || 'ECONOMY');
+        if (params.cabinClass) {
+            url.searchParams.append('travelClass', params.cabinClass);
         }
 
-        const response = await fetch(url.toString(), {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json',
-            },
-        });
+        const response = await fetch(url.toString());
 
         if (!response.ok) {
-            throw new Error(`Amadeus API error: ${response.status} ${response.statusText}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || 'Failed to fetch flights');
         }
 
         const data = await response.json();
 
-        if (!data.data || data.data.length === 0) {
-            console.warn('No flights found in Amadeus API response');
+        if (!data || data.length === 0) {
             return [];
         }
 
-        // Transform Amadeus response to our Flight type
-        return data.data.map((offer: any) => transformAmadeusOffer(offer));
+        // Transform response to our Flight type
+        return data.map((offer: any) => transformAmadeusOffer(offer));
     } catch (error) {
-        console.error('Error fetching flights from Amadeus API:', error);
+        console.error('Error fetching flights from proxy:', error);
         throw error;
     }
 }
@@ -121,23 +52,19 @@ export async function searchFlightsRealtime(
  * Transform Amadeus flight offer to our Flight type
  */
 function transformAmadeusOffer(offer: any): Flight {
-    const itinerary = offer.itineraries[0]; // First itinerary (outbound)
+    const itinerary = offer.itineraries[0];
     const firstSegment = itinerary.segments[0];
     const lastSegment = itinerary.segments[itinerary.segments.length - 1];
 
-    // Get airline info from validating airline
     const airlineCode = offer.validatingAirlineCodes?.[0] || firstSegment.carrierCode;
     const airlineName = getAirlineName(airlineCode);
 
-    // Extract times (format: 2024-01-15T10:30:00)
     const departureTime = firstSegment.departure.at.split('T')[1].substring(0, 5);
     const arrivalTime = lastSegment.arrival.at.split('T')[1].substring(0, 5);
 
-    // Calculate total duration
     const duration = itinerary.duration.replace('PT', '').toLowerCase();
     const totalDuration = duration.replace('h', 'h ').replace('m', 'm');
 
-    // Transform segments
     const segments = itinerary.segments.map((segment: any) => ({
         departure: {
             airport: segment.departure.iataCode,
@@ -177,7 +104,7 @@ function transformAmadeusOffer(offer: any): Flight {
 /**
  * Get airline name from code
  */
-function getAirlineName(code: string): string {
+export function getAirlineName(code: string): string {
     const airlines: Record<string, string> = {
         'AA': 'American Airlines',
         'UA': 'United Airlines',
@@ -203,7 +130,7 @@ function getAirlineName(code: string): string {
 }
 
 /**
- * Search for airports using Amadeus Airport & City Search API
+ * Search for airports using the proxy server
  */
 export async function getAirportSuggestions(query: string): Promise<Airport[]> {
     if (!query || query.length < 2) {
@@ -211,34 +138,22 @@ export async function getAirportSuggestions(query: string): Promise<Airport[]> {
     }
 
     try {
-        const token = await getAccessToken();
-
-        const url = new URL(`${BASE_URL}/v1/reference-data/locations`);
-        url.searchParams.append('subType', 'AIRPORT,CITY');
+        const url = new URL(`${PROXY_URL}/airports/suggestions`);
         url.searchParams.append('keyword', query);
-        url.searchParams.append('page[limit]', '10');
 
-        const response = await fetch(url.toString(), {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json',
-            },
-        });
+        const response = await fetch(url.toString());
 
         if (!response.ok) {
-            console.warn('Amadeus airport search failed');
             return [];
         }
 
         const data = await response.json();
 
-        if (!data.data || data.data.length === 0) {
+        if (!data || data.length === 0) {
             return [];
         }
 
-        // Transform to our Airport type
-        return data.data.map((location: any) => ({
+        return data.map((location: any) => ({
             code: location.iataCode,
             name: location.name,
             city: location.address?.cityName || location.name,
