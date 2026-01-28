@@ -103,7 +103,7 @@ export function PriceGraph({ data, isLoading }: PriceGraphProps) {
   const [chartType, setChartType] = useState<ChartType>('bar');
   if (isLoading) {
     return (
-      <div className="bg-card border border-border rounded-xl p-6">
+      <div className="bg-card border border-border rounded-xl p-6 shadow-lg shadow-primary/5">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl shimmer" />
@@ -121,8 +121,8 @@ export function PriceGraph({ data, isLoading }: PriceGraphProps) {
   }
   if (data.length === 0) {
     return (
-      <div className="glass-card rounded-2xl p-6">
-        <div className="flex items-center gap-3 mb-6">
+      <div className="bg-card border border-border rounded-xl p-6 shadow-lg shadow-primary/5">
+        <div className="relative items-center gap-3 mb-6">
           <div className="p-2.5 bg-gradient-primary rounded-xl">
             <TrendingUp className="w-5 h-5 text-white" />
           </div>
@@ -396,23 +396,23 @@ export function PriceGraph({ data, isLoading }: PriceGraphProps) {
     }
   };
   return (
-    <div className="glass-card rounded-2xl p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div className="bg-card border border-border rounded-xl p-6 shadow-lg shadow-primary/5 overflow-hidden">
+      <div className="relative sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-gradient-primary rounded-xl shadow-lg shadow-primary/25">
+          {/* <div className="p-2.5 bg-primary rounded-xl shadow-lg shadow-primary/25">
             <TrendingUp className="w-5 h-5 text-white" />
-          </div>
+          </div> */}
           <div>
             <h3 className="text-lg font-semibold text-foreground">
               Price Analysis
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm mb-4 text-muted-foreground">
               Average price by airline
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap justify-start">
           <ChartTypeButton
             type="bar"
             currentType={chartType}
@@ -484,7 +484,7 @@ export function PriceGraph({ data, isLoading }: PriceGraphProps) {
         </div>
       </div>
 
-      <div className="h-64">
+      <div className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
           {renderChart()}
         </ResponsiveContainer>
