@@ -11,7 +11,7 @@ export function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe] = useState(false);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -88,7 +88,7 @@ export function LoginPage() {
 
             </div>
 
-            <div className="flex items-center justify-between">
+            {/* <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -103,7 +103,7 @@ export function LoginPage() {
               <a href="#" className="text-sm text-primary hover:underline">
                 Forgot password?
               </a>
-            </div>
+            </div> */}
 
             <Button
               type="submit"
@@ -117,7 +117,7 @@ export function LoginPage() {
           </form>
 
           {/* Divider */}
-          <div className="relative my-6">
+          {/* <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-border" />
             </div>
@@ -126,10 +126,10 @@ export function LoginPage() {
                 Or continue with
               </span>
             </div>
-          </div>
+          </div> */}
 
           {/* Social Login */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* <div className="grid grid-cols-2 gap-3">
             <Button variant="outline" size="md" className="w-full">
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path
@@ -161,7 +161,7 @@ export function LoginPage() {
               </svg>
               Facebook
             </Button>
-          </div>
+          </div> */}
 
           {/* Sign Up Link */}
           <p className="text-center text-sm text-muted-foreground mt-6">
@@ -174,11 +174,6 @@ export function LoginPage() {
             </Link>
           </p>
         </div>
-
-        {/* Demo Hint */}
-        <p className="text-center text-xs text-muted-foreground mt-4">
-          Demo: Use any email and password (6+ characters)
-        </p>
       </div>
     </div>);
 
