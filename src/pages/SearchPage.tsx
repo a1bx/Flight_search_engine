@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AlertCircle, RefreshCw, Scale } from 'lucide-react';
 import { SearchForm } from '../components/SearchForm';
 import { FlightList } from '../components/FlightList';
@@ -35,6 +35,7 @@ export function SearchPage() {
     swapLocations,
     executeSearch
   } = useFlightSearch();
+  const navigate = useNavigate();
   const {
     filters,
     setStops,
@@ -66,10 +67,13 @@ export function SearchPage() {
   useEffect(() => {
     const originCode = urlParams.get('origin');
     if (originCode) {
-      const airports = searchAirports(originCode);
-      if (airports.length > 0) {
-        setOrigin(airports[0]);
-      }
+      const fetchAirport = async () => {
+        const airports = await searchAirports(originCode);
+        if (airports.length > 0) {
+          setOrigin(airports[0]);
+        }
+      };
+      fetchAirport();
     }
   }, [urlParams, setOrigin]);
   // Apply main filters
@@ -268,7 +272,11 @@ export function SearchPage() {
                 sortOption={sortOption}
                 onSortChange={setSortOption}
                 onSelectFlight={(flight) => {
-                  console.log('Selected flight:', flight);
+                  if (!isAuthenticated) {
+                    navigate('/login');
+                    return;
+                  }
+                  alert(`Booking flight ${flight.id} for ${flight.airline.name}. This is a real-life result!`);
                 }}
                 onAddToComparison={handleAddToComparison}
                 onTogglePriceAlert={handleTogglePriceAlert}
@@ -310,7 +318,11 @@ export function SearchPage() {
         onClose={closeComparison}
         onRemove={removeFromComparison}
         onSelect={(flight) => {
-          console.log('Selected from comparison:', flight);
+          if (!isAuthenticated) {
+            navigate('/login');
+            return;
+          }
+          alert(`Booking flight ${flight.id} for ${flight.airline.name}. This is a real-life result!`);
           closeComparison();
         }} />
 
