@@ -11,7 +11,10 @@ import { NearbyAirportsPage } from './pages/NearbyAirportsPage';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
 import { ProfilePage } from './pages/ProfilePage';
-function AppLayout({ children }: {children: React.ReactNode;}) {
+import { HotelsPage } from './pages/HotelsPage';
+import { CarsPage } from './pages/CarsPage';
+import { TransfersPage } from './pages/TransfersPage';
+function AppLayout({ children }: { children: React.ReactNode; }) {
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
@@ -20,7 +23,7 @@ function AppLayout({ children }: {children: React.ReactNode;}) {
     </div>);
 
 }
-function AuthLayout({ children }: {children: React.ReactNode;}) {
+function AuthLayout({ children }: { children: React.ReactNode; }) {
   return <>{children}</>;
 }
 export function App() {
@@ -31,7 +34,7 @@ export function App() {
         <Route
           path="/login"
           element={
-          <AuthLayout>
+            <AuthLayout>
               <LoginPage />
             </AuthLayout>
           } />
@@ -39,7 +42,7 @@ export function App() {
         <Route
           path="/signup"
           element={
-          <AuthLayout>
+            <AuthLayout>
               <SignupPage />
             </AuthLayout>
           } />
@@ -49,7 +52,7 @@ export function App() {
         <Route
           path="/"
           element={
-          <AppLayout>
+            <AppLayout>
               <LandingPage />
             </AppLayout>
           } />
@@ -57,7 +60,7 @@ export function App() {
         <Route
           path="/search"
           element={
-          <AppLayout>
+            <AppLayout>
               <SearchPage />
             </AppLayout>
           } />
@@ -65,7 +68,7 @@ export function App() {
         <Route
           path="/destinations"
           element={
-          <AppLayout>
+            <AppLayout>
               <DestinationsPage />
             </AppLayout>
           } />
@@ -73,7 +76,7 @@ export function App() {
         <Route
           path="/destinations/:id"
           element={
-          <AppLayout>
+            <AppLayout>
               <DestinationDetailPage />
             </AppLayout>
           } />
@@ -81,7 +84,7 @@ export function App() {
         <Route
           path="/budget"
           element={
-          <AppLayout>
+            <AppLayout>
               <BudgetPage />
             </AppLayout>
           } />
@@ -89,7 +92,7 @@ export function App() {
         <Route
           path="/nearby"
           element={
-          <AppLayout>
+            <AppLayout>
               <NearbyAirportsPage />
             </AppLayout>
           } />
@@ -97,8 +100,32 @@ export function App() {
         <Route
           path="/profile"
           element={
-          <AppLayout>
+            <AppLayout>
               <ProfilePage />
+            </AppLayout>
+          } />
+
+        <Route
+          path="/hotels"
+          element={
+            <AppLayout>
+              <HotelsPage />
+            </AppLayout>
+          } />
+
+        <Route
+          path="/cars"
+          element={
+            <AppLayout>
+              <CarsPage />
+            </AppLayout>
+          } />
+
+        <Route
+          path="/transfers"
+          element={
+            <AppLayout>
+              <TransfersPage />
             </AppLayout>
           } />
 
