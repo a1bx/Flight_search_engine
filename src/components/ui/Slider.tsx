@@ -68,7 +68,7 @@ export function Slider({
   const minPercent = getPercentage(value[0]);
   const maxPercent = getPercentage(value[1]);
   return (
-    <div className="w-full">
+    <div className="w-full overflow-hidden">
       {label &&
       <label className="block text-sm font-medium text-foreground mb-3">
           {label}
@@ -80,7 +80,7 @@ export function Slider({
       </div>
       <div
         ref={trackRef}
-        className="relative h-2 bg-muted rounded-full cursor-pointer">
+        className="relative h-2 bg-muted rounded-full cursor-pointer w-full">
 
         {/* Active track */}
         <div
