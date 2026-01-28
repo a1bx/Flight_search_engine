@@ -106,27 +106,47 @@ const HOTELS: Hotel[] = [
   }
 ];
 
-export function searchHotels(params: HotelSearchParams): Promise<Hotel[]> {
-  return new Promise((resolve) => {
-    // Simulate API delay
-    setTimeout(() => {
-      const filtered = HOTELS.filter(
-        (hotel) =>
-          hotel.city.toLowerCase().includes(params.destination.toLowerCase()) ||
-          hotel.country.toLowerCase().includes(params.destination.toLowerCase())
-      );
-      
-      // Add some randomization to prices based on dates
-      const results = filtered.map((hotel) => ({
-        ...hotel,
-        pricePerNight: Math.round(
-          hotel.pricePerNight * (0.8 + Math.random() * 0.4)
-        )
-      }));
-      
-      resolve(results);
-    }, 1000 + Math.random() * 1000);
-  });
+export async function searchHotels(params: HotelSearchParams): Promise<Hotel[]> {
+  try {
+    // Try real API via proxy first
+    const response = await fetch(`http://localhost:3001/api/hotels/search?cityCode=${params.destination.toUpperCase()}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.length > 0) {
+        return data.map((h: any) => ({
+          id: h.hotelId || h.hotel?.hotelId,
+          name: h.hotel?.name || 'Unknown Hotel',
+          location: h.hotel?.address?.cityName || params.destination,
+          city: h.hotel?.address?.cityName || params.destination,
+          country: h.hotel?.address?.countryCode || '',
+          rating: 4.0,
+          pricePerNight: parseFloat(h.offers?.[0]?.price?.total || '150'),
+          currency: h.offers?.[0]?.price?.currency || 'USD',
+          image: `https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80&sig=${h.hotelId}`,
+          amenities: h.hotel?.amenities || ['WiFi', 'Pool'],
+          description: 'Experience real-life luxury at this Amadeus-listed property.',
+          checkIn: params.checkIn,
+          checkOut: params.checkOut
+        }));
+      }
+    }
+  } catch (error) {
+    console.warn('Real hotel search failed, falling back to local data');
+  }
+
+  // Fallback to mock data logic
+  const filtered = HOTELS.filter(
+    (hotel) =>
+      hotel.city.toLowerCase().includes(params.destination.toLowerCase()) ||
+      hotel.country.toLowerCase().includes(params.destination.toLowerCase())
+  );
+
+  return filtered.map((hotel) => ({
+    ...hotel,
+    pricePerNight: Math.round(
+      hotel.pricePerNight * (0.8 + Math.random() * 0.4)
+    )
+  }));
 }
 
 export function getHotelsByDestination(destination: string): Hotel[] {
